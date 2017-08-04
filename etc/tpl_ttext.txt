@@ -5,9 +5,9 @@ This plugin aims at facilitating editing text files with long lines.
 
 Features:
 
-    - Set 'textwidth' to 0 if the current buffer contains long lines
-    - Remap some movement keys if 'textwidth' is 0
-    - Enable some minimal highlighting for plain text.
+- Set 'textwidth' to 0 if the current buffer contains long lines
+- Remap some movement keys if 'textwidth' is 0
+- Enable some minimal highlighting for plain text.
 
 
 -----------------------------------------------------------------------
