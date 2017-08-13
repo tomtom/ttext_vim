@@ -1,11 +1,26 @@
 " @Author:      Tom Link (mailto:micathom AT gmail com?subject=[vim])
 " @Website:     https://github.com/tomtom
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
-" @Last Change: 2017-08-01
-" @Revision:    16
+" @Last Change: 2017-08-09
+" @Revision:    26
+
+
+if !exists('g:ttext#tw0_accept_indented_lines')
+    let g:ttext#tw0_accept_indented_lines = 0   "{{{2
+endif
+
+
+if !exists('g:ttext#debug')
+    let g:ttext#debug = 0   "{{{2
+endif
+
+if exists(':Tlibtrace') != 2
+    command! -nargs=+ -bang Tlibtrace :
+endif
 
 
 function! ttext#Setup_highlight() abort "{{{3
+    Tlibtrace 'ttext', &filetype
     let b:commentStart = '%'
     let b:commentEnd   = ''
     syntax match ttextComment "^%.*"
@@ -26,19 +41,33 @@ endf
 
 
 function! ttext#Detect_tw0() abort "{{{3
-    let threshold = &tw + 10
-    for lnum in range(1, line('$'))
-        if strdisplaywidth(getline(lnum)) > threshold
-            setlocal tw=0
-            call ttext#Setup_tw0()
-            break
-        endif
-    endfor
+    if &tw > 0 && !search('\<\%(vim\?\|ex\):.\{-}\<\%(tw\|textwidth\)=', 'cnw')
+        let threshold = &tw + 10
+        Tlibtrace 'ttext', threshold
+        for lnum in range(1, line('$'))
+            if !g:ttext#tw0_accept_indented_lines && indent(lnum) > 0
+                continue
+            endif
+            let line = getline(lnum)
+            if strdisplaywidth(line) > threshold
+                if g:ttext#debug
+                    echom 'TText: long line -> tw=0'
+                endif
+                setlocal tw=0
+                call ttext#Setup_tw0()
+                break
+            endif
+        endfor
+    endif
     let b:ttext_detect_tw = 1
 endf
 
 
 function! ttext#Setup_tw0() abort "{{{3
+    Tlibtrace 'ttext', &textwidth, &linebreak, &breakat, &wrapmargin, &showbreak, &wrap
+    if g:ttext#debug
+        echom 'TText: Setup tw == 0'
+    endif
     setlocal linebreak
     call ttext#VisualMovements()
     let b:ttext_tw0 = 1
@@ -46,6 +75,7 @@ endf
 
 
 function! ttext#VisualMovements() abort "{{{3
+    Tlibtrace 'ttext', &formatoptions
     set formatoptions-=a
     noremap <buffer> j gj
     noremap <buffer> k gk
