@@ -1,12 +1,17 @@
 " @Author:      Tom Link (mailto:micathom AT gmail com?subject=[vim])
 " @Website:     https://github.com/tomtom
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
-" @Last Change: 2017-08-09
-" @Revision:    26
+" @Last Change: 2019-01-02
+" @Revision:    38
 
 
-if !exists('g:ttext#tw0_accept_indented_lines')
-    let g:ttext#tw0_accept_indented_lines = 0   "{{{2
+if !exists('g:ttext#longlines_accept_indented_lines')
+    let g:ttext#longlines_accept_indented_lines = 0   "{{{2
+endif
+
+
+if !exists('g:ttext#longlines_options')
+    let g:ttext#longlines_options = 'textwidth=0 wrap linebreak'   "{{{2
 endif
 
 
@@ -40,12 +45,12 @@ function! ttext#Setup_highlight() abort "{{{3
 endf
 
 
-function! ttext#Detect_tw0() abort "{{{3
+function! ttext#Detect_longlines() abort "{{{3
     if &tw > 0 && !search('\<\%(vim\?\|ex\):.\{-}\<\%(tw\|textwidth\)=', 'cnw')
         let threshold = &tw + 10
         Tlibtrace 'ttext', threshold
         for lnum in range(1, line('$'))
-            if !g:ttext#tw0_accept_indented_lines && indent(lnum) > 0
+            if !g:ttext#longlines_accept_indented_lines && indent(lnum) > 0
                 continue
             endif
             let line = getline(lnum)
@@ -53,30 +58,26 @@ function! ttext#Detect_tw0() abort "{{{3
                 if g:ttext#debug
                     echom 'TText: long line -> tw=0'
                 endif
-                setlocal tw=0
-                call ttext#Setup_tw0()
+                exec 'setlocal' g:ttext#longlines_options
+                " setlocal textwidth=0
+                " if !&wrap
+                "     setlocal wrap
+                " endif
+                " if !&linebreak
+                "     setlocal linebreak
+                " endif
+                call ttext#Setup_longlines()
                 break
             endif
         endfor
     endif
-    let b:ttext_detect_tw = 1
-endf
-
-
-function! ttext#Setup_tw0() abort "{{{3
-    Tlibtrace 'ttext', &textwidth, &linebreak, &breakat, &wrapmargin, &showbreak, &wrap
-    if g:ttext#debug
-        echom 'TText: Setup tw == 0'
-    endif
-    setlocal linebreak
-    call ttext#VisualMovements()
-    let b:ttext_tw0 = 1
+    let b:ttext_detect_longlines = 1
 endf
 
 
 function! ttext#VisualMovements() abort "{{{3
-    Tlibtrace 'ttext', &formatoptions
-    set formatoptions-=a
+    " Tlibtrace 'ttext', &formatoptions
+    " set formatoptions-=a
     noremap <buffer> j gj
     noremap <buffer> k gk
     noremap <buffer> <Down> gj
@@ -101,4 +102,16 @@ function! ttext#VisualMovements() abort "{{{3
     vnoremap <buffer> <S-Down> gj
     let b:ttext_highlight = 1
 endf
+
+
+function! ttext#Setup_longlines() abort "{{{3
+    Tlibtrace 'ttext', &textwidth, &linebreak, &breakat, &wrapmargin, &showbreak, &wrap
+    if g:ttext#debug
+        echom 'TText: Setup tw == 0'
+    endif
+    setlocal linebreak
+    silent call ttext#VisualMovements()
+    let b:ttext_longlines = 1
+endf
+
 
