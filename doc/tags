@@ -1,0 +1,5 @@
+g:ttext_detect_tw_pattern	ttext.txt	/*g:ttext_detect_tw_pattern*
+g:ttext_handle_tw0_pattern	ttext.txt	/*g:ttext_handle_tw0_pattern*
+g:ttext_highlight_filetype_rx	ttext.txt	/*g:ttext_highlight_filetype_rx*
+plugin/ttext.vim	ttext.txt	/*plugin\/ttext.vim*
+ttext.txt	ttext.txt	/*ttext.txt*
